@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import urlparse
 
 from .schemas import RuleSet
 
@@ -30,4 +31,5 @@ def is_protected_link(url: str, *, rule_set: RuleSet | None = None) -> bool:
     """
     rule_set = rule_set or RuleSet.from_directory(base_rule_directory)
     # do quick check whether it's a protected link (= supported by any of the rules)
-    return any(rule.filter.matches(url) for rule in rule_set.rules)
+    parsed = urlparse(url)
+    return any(rule.filter.matches(url, parsed=parsed) for rule in rule_set.rules)

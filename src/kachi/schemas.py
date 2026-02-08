@@ -8,7 +8,7 @@ from enum import Enum
 from functools import cache
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qs, unquote, urlparse
+from urllib.parse import ParseResult, parse_qs, unquote, urlparse
 
 import yaml
 
@@ -23,6 +23,7 @@ _VALID_TRANSFORM_NAMES = frozenset(
     {"html_unescape", "url_decode", "base64_decode", "prepend", "proofpoint_v2_decode"}
 )
 _PARAMETERIZED_TRANSFORMS = frozenset({"prepend"})
+_PROOFPOINT_V2_RE = re.compile(r"-([0-9A-Fa-f]{2})")
 
 
 class ExtractSource(Enum):
@@ -47,6 +48,7 @@ class Matcher:
 
     is_regex: bool = field(init=False)
     pattern: str = field(init=False)
+    _compiled: re.Pattern[str] | None = field(init=False, default=None, repr=False)
 
     def __post_init__(self) -> None:
         if not self.raw:
@@ -59,13 +61,13 @@ class Matcher:
 
         if self.is_regex:
             try:
-                re.compile(self.pattern)
+                self._compiled = re.compile(self.pattern)
             except re.error as e:
                 raise ValueError(f"invalid regex /{self.pattern}/: {e}") from e
 
     def matches(self, value: str) -> bool:
-        if self.is_regex:
-            return re.search(self.pattern, value) is not None
+        if self._compiled is not None:
+            return self._compiled.search(value) is not None
 
         return value == self.pattern
 
@@ -79,8 +81,8 @@ class Filter:
         if not self.hostname:
             raise ValueError("at least one hostname matcher is required")
 
-    def matches(self, url: str) -> bool:
-        parsed = urlparse(url)
+    def matches(self, url: str, *, parsed: ParseResult | None = None) -> bool:
+        parsed = parsed or urlparse(url)
         hostname = parsed.hostname or ""
         if not any(m.matches(hostname) for m in self.hostname):
             return False
@@ -124,8 +126,7 @@ class Transform:
             case "prepend":
                 return self.value + value  # type: ignore[operator]
             case "proofpoint_v2_decode":
-                decoded = re.sub(
-                    r"-([0-9A-Fa-f]{2})",
+                decoded = _PROOFPOINT_V2_RE.sub(
                     lambda m: chr(int(m.group(1), 16)),
                     value,
                 )
@@ -148,6 +149,9 @@ class Extract:
     keys: list[str] = field(default_factory=list)
     pattern: str | None = None
     select: ParamSelect = ParamSelect.FIRST
+    _compiled_pattern: re.Pattern[str] | None = field(
+        init=False, default=None, repr=False
+    )
 
     def __post_init__(self) -> None:
         match self.source:
@@ -171,17 +175,17 @@ class Extract:
                     )
 
                 try:
-                    compiled = re.compile(self.pattern)
+                    self._compiled_pattern = re.compile(self.pattern)
                 except re.error as e:
                     raise ValueError(f"invalid {self.source.value} pattern: {e}") from e
 
-                if compiled.groups < 1:
+                if self._compiled_pattern.groups < 1:
                     raise ValueError(
                         f"{self.source.value} pattern must contain at least one capture group"
                     )
 
-    def call(self, url: str) -> str | None:
-        parsed = urlparse(url)
+    def call(self, url: str, *, parsed: ParseResult | None = None) -> str | None:
+        parsed = parsed or urlparse(url)
         match self.source:
             case ExtractSource.QUERY_PARAM:
                 qs = parse_qs(parsed.query)
@@ -195,10 +199,10 @@ class Extract:
                         )
                 return None
             case ExtractSource.PATH_REGEX:
-                m = re.search(self.pattern, parsed.path)  # type: ignore[arg-type]
+                m = self._compiled_pattern.search(parsed.path)  # type: ignore[union-attr]
                 return m.group(1) if m else None
             case ExtractSource.URL_REGEX:
-                m = re.search(self.pattern, url)  # type: ignore[arg-type]
+                m = self._compiled_pattern.search(url)  # type: ignore[union-attr]
                 return m.group(1) if m else None
 
     @classmethod
@@ -231,14 +235,15 @@ class Rule:
         if not self.name:
             raise ValueError("rule name must not be empty")
 
-    def call(self, url: str) -> str | None:
-        if not self.filter.matches(url):
+    def call(self, url: str, *, parsed: ParseResult | None = None) -> str | None:
+        parsed = parsed or urlparse(url)
+        if not self.filter.matches(url, parsed=parsed):
             return None
 
         for t in self.pre_extract:
             url = t.call(url)
 
-        result = self.extract.call(url)
+        result = self.extract.call(url, parsed=parsed if not self.pre_extract else None)
         if result is None:
             return None
 
@@ -283,8 +288,9 @@ class RuleSet:
             raise ValueError(f"duplicate rule names: {sorted(duplicates)}")
 
     def call(self, url: str) -> str | None:
+        parsed = urlparse(url)
         for rule in self.rules:
-            result = rule.call(url)
+            result = rule.call(url, parsed=parsed)
             if result is not None:
                 return result
 
@@ -294,8 +300,9 @@ class RuleSet:
     def from_dict(cls, data: dict[str, Any]) -> RuleSet:
         return cls(rules=[Rule.from_dict(r) for r in data["rules"]])
 
-    @classmethod
-    def from_directory(cls, directory: str | Path) -> RuleSet:
+    @staticmethod
+    @cache
+    def from_directory(directory: str | Path) -> RuleSet:
         path = Path(directory)
         rules = [Rule.from_file(f) for f in sorted(path.glob("*.yml"))]
-        return cls(rules=rules)
+        return RuleSet(rules=rules)
