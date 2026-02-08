@@ -1,5 +1,8 @@
 # kachi
 
+[![PyPI version](https://badge.fury.io/py/kachi.svg)](https://badge.fury.io/py/kachi)
+[![Test](https://github.com/ninoseki/kachi/actions/workflows/test.yml/badge.svg)](https://github.com/ninoseki/kachi/actions/workflows/test.yml)
+
 Make a protected link unsafe.
 
 ## Requirements

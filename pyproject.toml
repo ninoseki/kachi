@@ -8,6 +8,10 @@ dependencies = ["pyyaml>=6.0,<7.0"]
 license = "MIT"
 authors = [{ name = "Manabu Niseki", email = "manabu.niseki@gmail.com" }]
 
+[project.urls]
+Homepage = "https://github.com/ninoseki/kachi"
+Repository = "https://github.com/ninoseki/kachi"
+
 [build-system]
 requires = ["hatchling>=1.26", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
