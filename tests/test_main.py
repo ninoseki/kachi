@@ -79,7 +79,7 @@ def test_no_match() -> None:
             True,
         ),
         (
-            "https://x.linkprotect.cudasvc.com/?a=http%3A%2F%2Fexample.com",
+            "https://linkprotect.cudasvc.com/?a=http%3A%2F%2Fexample.com",
             True,
         ),
         (
@@ -111,7 +111,7 @@ def test_no_match() -> None:
             True,
         ),
         (
-            "https://imsva91.ctp.trendmicro.com/wis/clicktime/v1/query?url=http%3A%2F%2Fexample.com",
+            "https://imsva91-ctp.trendmicro.com/wis/clicktime/v1/query?url=http%3A%2F%2Fexample.com",
             True,
         ),
         (

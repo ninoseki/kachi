@@ -1,6 +1,6 @@
 name: barracuda
 filter:
-  hostname: /linkprotect\.cudasvc\.com$/
+  hostname: linkprotect.cudasvc.com
 extract:
   from: query_param
   keys: [a]

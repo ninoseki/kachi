@@ -1,6 +1,6 @@
 name: fireeye
 filter:
-  hostname: /\.fireeye\.com$/
+  hostname: protect2.fireeye.com
   path: /^\/v1\/url/
 extract:
   from: query_param
