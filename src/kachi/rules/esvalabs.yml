@@ -1,0 +1,6 @@
+name: esvalabs
+filter:
+  hostname: urlsand.esvalabs.com
+extract:
+  from: query_param
+  keys: [u]

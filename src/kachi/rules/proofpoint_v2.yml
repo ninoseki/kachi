@@ -1,0 +1,9 @@
+name: proofpoint_v2
+filter:
+  hostname: urldefense.proofpoint.com
+  path: /^\/v2\/url/
+extract:
+  from: query_param
+  keys: [u]
+post_extract:
+  - proofpoint_v2_decode

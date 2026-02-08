@@ -1,0 +1,9 @@
+name: proofpoint_v1
+filter:
+  hostname: urldefense.proofpoint.com
+  path: /^\/v1\/url/
+pre_extract:
+  - html_unescape
+extract:
+  from: query_param
+  keys: [u]

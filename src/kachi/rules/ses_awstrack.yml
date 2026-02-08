@@ -1,0 +1,9 @@
+name: ses_awstrack
+filter:
+  hostname: /\.awstrack\.me$/
+  path: /^\/L0/
+extract:
+  from: path_regex
+  pattern: "/L0/(http[^/?#]+)"
+post_extract:
+  - url_decode

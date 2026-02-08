@@ -1,0 +1,6 @@
+name: o365_safelinks
+filter:
+  hostname: /safelinks\.protection\.outlook\.com$/
+extract:
+  from: query_param
+  keys: [url]

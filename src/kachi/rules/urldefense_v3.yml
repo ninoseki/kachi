@@ -1,0 +1,9 @@
+name: urldefense_v3
+filter:
+  hostname:
+    - urldefense.us
+    - urldefense.com
+  path: /^\/v3\/__/
+extract:
+  from: url_regex
+  pattern: "__(.+?)__;"

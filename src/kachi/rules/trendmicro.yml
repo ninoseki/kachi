@@ -1,0 +1,6 @@
+name: trendmicro
+filter:
+  hostname: /ctp\.trendmicro\.com$/
+extract:
+  from: query_param
+  keys: [url]
