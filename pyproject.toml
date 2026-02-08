@@ -1,6 +1,6 @@
 [project]
 name = "kachi"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Make a protected link unsafe"
 readme = "README.md"
 requires-python = ">=3.12"
