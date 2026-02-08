@@ -11,7 +11,7 @@ from kachi import is_protected_link, unsafe_link
             "azure_email",
         ),
         (
-            "https://x.linkprotect.cudasvc.com/?a=http%3A%2F%2Fexample.com",
+            "https://linkprotect.cudasvc.com/?a=http%3A%2F%2Fexample.com",
             "barracuda",
         ),
         (
@@ -39,7 +39,7 @@ from kachi import is_protected_link, unsafe_link
             "ses_awstrack",
         ),
         (
-            "https://imsva91.ctp.trendmicro.com/wis/clicktime/v1/query?url=http%3A%2F%2Fexample.com",
+            "https://imsva91-ctp.trendmicro.com/wis/clicktime/v1/query?url=http%3A%2F%2Fexample.com",
             "trendmicro",
         ),
         (
