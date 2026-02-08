@@ -1,0 +1,10 @@
+name: whatsapp
+filter:
+  hostname: l.wl.co
+  path: /l
+pre_extract:
+  - html_unescape
+  - url_decode
+extract:
+  from: query_param
+  keys: [u]

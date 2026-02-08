@@ -1,0 +1,8 @@
+name: sophos
+filter:
+  hostname: /\.protection\.sophos\.com$/
+extract:
+  from: query_param
+  keys: [u]
+post_extract:
+  - base64_decode

@@ -1,0 +1,41 @@
+#:schema https://www.schemastore.org/prek.json
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "uv-lock"
+name = "uv lock"
+language = "system"
+entry = "uv lock"
+files = "pyproject\\.toml$"
+pass_filenames = false
+
+[[repos.hooks]]
+id = "uv-sort"
+name = "uv sort"
+language = "system"
+entry = "uv run uv-sort"
+files = "pyproject\\.toml$"
+pass_filenames = false
+
+[[repos.hooks]]
+id = "ruff-check"
+name = "ruff check"
+language = "system"
+entry = "uv run ruff check --fix"
+types = ["python"]
+
+[[repos.hooks]]
+id = "ruff-format"
+name = "ruff format"
+language = "system"
+entry = "uv run ruff format"
+types = ["python"]
+
+[[repos.hooks]]
+id = "mypy"
+name = "mypy"
+language = "system"
+entry = "uv run mypy"
+types = ["python"]

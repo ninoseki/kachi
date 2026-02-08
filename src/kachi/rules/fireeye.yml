@@ -1,0 +1,7 @@
+name: fireeye
+filter:
+  hostname: protect2.fireeye.com
+  path: /^\/v1\/url/
+extract:
+  from: query_param
+  keys: [u]

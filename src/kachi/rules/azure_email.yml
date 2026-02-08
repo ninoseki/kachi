@@ -1,0 +1,9 @@
+name: azure_email
+filter:
+  hostname:
+    - emails.azure.microsoft.com
+    - /\.safelink\.emails\.azure\.net$/
+  path: /redirect/
+extract:
+  from: query_param
+  keys: [destination]
